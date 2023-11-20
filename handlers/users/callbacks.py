@@ -1,6 +1,6 @@
 from aiogram import types
 
-from loader import dp, db, bot
+from loader import dp
 from states.steps import StatesForBot
 from keyboards.inline.default_inline_keyboards import social_medias_keyboard
 
