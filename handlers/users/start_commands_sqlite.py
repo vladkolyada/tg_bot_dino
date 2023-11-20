@@ -1,12 +1,10 @@
-import aiohttp
-import random
 from aiogram import types
 from aiogram.types.message import ContentType
 from aiogram.dispatcher.filters.builtin import CommandStart, CommandHelp
 from aiogram.types import ParseMode
 
 from utils.misc.throttling import rate_limit
-from loader import dp, db, db_sqlite, bot
+from loader import dp, db_sqlite, bot
 from keyboards.inline.default_inline_keyboards import start_keyboard
 from data.config import ADMINS
 from states.steps import StatesForBot
@@ -16,8 +14,6 @@ from states.steps import StatesForBot
 @dp.message_handler(CommandStart())
 async def start_command(message: types.Message):
     await StatesForBot.UsualState.set()
-    await db.add_new_user_to_the_table(id=message.chat.id, first_name=message.chat.first_name,
-                                       last_name=message.chat.last_name, nickname=message.chat.username)
     db_sqlite.add_new_user(id=message.chat.id, first_name=message.chat.first_name,
                            last_name=message.chat.last_name, nickname=message.chat.username)
     await message.answer_photo(photo=open("images/megalodon_tooth.png", 'rb'),
@@ -31,16 +27,13 @@ async def notify_all_users(message: types.Message):
     for user_admin in ADMINS:
         if message.chat.id == user_admin:
             text_for_notify = message.text[11:]
-            users = await db.get_all_users()
             users_sqlite = db_sqlite.get_users()
-            for user, user_sqlite in zip(users, users_sqlite):
+            for user_sqlite in users_sqlite:
                 try:
-                    await bot.send_message(chat_id=user[0], text=text_for_notify, parse_mode=ParseMode.HTML)
-                    if int(user[1]) != 1:
-                        await db.set_active(id=user[0], active=1)
+                    await bot.send_message(chat_id=user_sqlite[0], text=text_for_notify, parse_mode=ParseMode.HTML)
+                    if int(user_sqlite[1]) != 1:
                         db_sqlite.set_users_active(id=user_sqlite[0], active=1)
                 except:
-                    await db.set_active(id=user[0], active=0)
                     db_sqlite.set_users_active(id=user_sqlite[0], active=0)
 
             await message.answer(text="Вдала розсилка!")
@@ -65,17 +58,14 @@ async def get_photo_and_caption(message: types.Message):
             photo = message.photo[-1]
             caption = message.caption
 
-            users = await db.get_all_users()
             users_sqlite = db_sqlite.get_users()
-            for user, user_sqlite in zip(users, users_sqlite):
+            for user_sqlite in users_sqlite:
                 try:
-                    await bot.send_photo(chat_id=user[0], photo=photo.file_id, caption=caption,
+                    await bot.send_photo(chat_id=user_sqlite[0], photo=photo.file_id, caption=caption,
                                          parse_mode=ParseMode.HTML)
-                    if int(user[1]) != 1:
-                        await db.set_active(id=user[0], active=1)
+                    if int(user_sqlite[1]) != 1:
                         db_sqlite.set_users_active(id=user_sqlite[0], active=1)
                 except:
-                    await db.set_active(id=user[0], active=0)
                     db_sqlite.set_users_active(id=user_sqlite[0], active=0)
             await message.answer(text="Вдала розсилка!")
 
