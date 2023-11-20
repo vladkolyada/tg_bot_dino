@@ -1,0 +1,9 @@
+BOT_TOKEN = "5904098108:AAGnT0IUJwR2bIjuCFhUf_L8awL5c-pcaDo"
+ADMINS = [1312244819, 6727877419]
+GROUP = None
+IP = "127.0.0.1"
+
+PGUSER = 'postgres'
+PGPASSWORD = 'thesky'
+DBNAME = 'postgres'
+DBPORT = 5432
