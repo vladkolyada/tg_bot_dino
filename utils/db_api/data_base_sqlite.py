@@ -6,6 +6,20 @@ class DataBaseSqlite:
         self.connection = sqlite3.connect(db_file)
         self.cursor = self.connection.cursor()
 
+    def create_table(self):
+        with self.connection:
+            return self.cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users_dino(
+                id INTEGER NOT NULL PRIMARY KEY, 
+                first_name TEXT(70),
+                last_name TEXT(80),
+                nickname TEXT(60),
+                active INTEGER NOT NULL
+                );
+                """
+            )
+
     def add_new_user(self, id, first_name, last_name, nickname):
         with self.connection:
             try:
